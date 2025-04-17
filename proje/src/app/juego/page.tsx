@@ -29,6 +29,7 @@ export default function Juego() {
   const [tarjetas, setTarjetas] = useState(tarjetasIniciales);
   const [seleccionadas, setSeleccionadas] = useState<number[]>([]);
   const [totalClicks, setTotalClicks] = useState(0);
+  const [clicksPorTarjeta, setClicksPorTarjeta] = useState<number[]>(Array(tarjetas.length).fill(0));
   const [paresEncontrados, setParesEncontrados] = useState(0);
   const [bloquearTablero, setBloquearTablero] = useState(false);
   const [tiempo, setTiempo] = useState(20);
@@ -70,12 +71,19 @@ export default function Juego() {
     if (bloquearTablero) return;
     if (tarjetas[index].girada || tarjetas[index].emparejada) return;
     if (seleccionadas.length === 2) return;
+  
+    const clicksTarjeta = [...clicksPorTarjeta];
+    clicksTarjeta[index]++;
+    setClicksPorTarjeta(clicksTarjeta);
+  
     const nuevas = [...tarjetas];
     nuevas[index].girada = true;
     setTarjetas(nuevas);
+  
     setSeleccionadas([...seleccionadas, index]);
     setTotalClicks((c) => c + 1);
   };
+  
 
   return (
     <div>
@@ -95,9 +103,17 @@ export default function Juego() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-4 mt-6">
         {tarjetas.map((tarjeta, index) => (
-          <Tarjeta key={tarjeta.id} img={tarjeta.img} girada={tarjeta.girada || tarjeta.emparejada} onClick={() => manejarClickTarjeta(index)}/>
+          <div key={tarjeta.id} className="flex flex-col items-center">
+            <Tarjeta
+              img={tarjeta.img}
+              girada={tarjeta.girada || tarjeta.emparejada}
+              onClick={() => manejarClickTarjeta(index)}
+            />
+          <p className="mt-1 text-sm text-gray-700">Clicks: {clicksPorTarjeta[index]}</p>
+          </div>
         ))}
       </div>
+
     </div>
   );
 }
