@@ -35,8 +35,8 @@ export default function Juego() {
 
   useEffect(() => {
     if (tiempo === 0) return;
-    const intervalo = setInterval(() => {setTiempo((-1))})
-    return () => clearInterval(intervalo);
+    const intervalo = setInterval(() => {setTiempo((prev) => prev - 1);}, 1000);
+        return () => clearInterval(intervalo);
   }, [tiempo]);
 
   useEffect(() => {
@@ -67,10 +67,6 @@ export default function Juego() {
   }, [seleccionadas]);
 
   const manejarClickTarjeta = (index: number) => {
-    if (bloquearTablero) return;
-    if (tarjetas[index].girada || tarjetas[index].emparejada) return;
-    if (seleccionadas.length === 2) return;
-
     const nuevas = [...tarjetas];
     nuevas[index].girada = true;
     setTarjetas(nuevas);
