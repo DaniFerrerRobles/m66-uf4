@@ -67,6 +67,9 @@ export default function Juego() {
   }, [seleccionadas]);
 
   const manejarClickTarjeta = (index: number) => {
+    if (bloquearTablero) return;
+    if (tarjetas[index].girada || tarjetas[index].emparejada) return;
+    if (seleccionadas.length === 2) return;
     const nuevas = [...tarjetas];
     nuevas[index].girada = true;
     setTarjetas(nuevas);
