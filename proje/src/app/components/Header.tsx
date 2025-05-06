@@ -24,6 +24,18 @@ export default function Header() {
             >
               Acerca de
             </Link>
+            <Link
+              href="/registre"
+              className="text-white hover:text-indigo-400 transition-all duration-300 transform hover:scale-105"
+            >
+              Regístrate!
+            </Link>
+            <Link
+              href="/login"
+              className="text-white hover:text-indigo-400 transition-all duration-300 transform hover:scale-105"
+            >
+              Iniciar Sesión
+            </Link>
           </nav>
         </div>
       </div>

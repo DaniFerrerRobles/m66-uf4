@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
+import RegistroUsuarios from "../registre/page";
 
 const NUM_POKEMONS = 4; 
 
