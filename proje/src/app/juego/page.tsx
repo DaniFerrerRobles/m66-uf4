@@ -26,15 +26,7 @@ async function cargarPokemons(ids: number[]) {
   }));
 }
 
-const Tarjeta = ({
-  img,
-  girada,
-  onClick,
-}: {
-  img: string;
-  girada: boolean;
-  onClick: () => void;
-}) => (
+const Tarjeta = ({img, girada, onClick}:{img: string; girada: boolean;onClick: () => void;}) => (
   <div
     onClick={onClick}
     className="bg-white border rounded shadow cursor-pointer flex items-center justify-center h-32"
