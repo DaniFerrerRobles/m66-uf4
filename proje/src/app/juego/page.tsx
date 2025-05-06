@@ -2,19 +2,42 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 
-const GrupoTarjetas = [
-  { nombre: "pokemon1", img: "/pokemon1.jpg" },
-  { nombre: "pokemon2", img: "/pokemon2.jpeg" },
-  { nombre: "pokemon3", img: "/pokemon3.png" },
-  { nombre: "pokemon4", img: "/pokemon4.png" },
-  { nombre: "pokemon2", img: "/pokemon2.jpeg" },
-  { nombre: "pokemon4", img: "/pokemon4.png" },
-  { nombre: "pokemon3", img: "/pokemon3.png" },
-  { nombre: "pokemon1", img: "/pokemon1.jpg" },
-];
+const NUM_POKEMONS = 4; 
 
-const Tarjeta = ({img, girada, onClick,}:{img: string; girada: boolean; onClick: () => void;}) => (
-  <div onClick={onClick} className="bg-white border rounded shadow cursor-pointer flex items-center justify-center h-32" >
+function obtenerIdsAleatorios(cantidad: number): number[] {
+  const ids = new Set<number>();
+  while (ids.size < cantidad) {
+    const id = Math.floor(Math.random() * 150) + 1;
+    ids.add(id);
+  }
+  return Array.from(ids);
+}
+
+async function cargarPokemons(ids: number[]) {
+  const peticiones = ids.map((id) =>
+    fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then((res) => res.json())
+  );
+  const resultados = await Promise.all(peticiones);
+
+  return resultados.map((p) => ({
+    nombre: p.name,
+    img: p.sprites.front_default,
+  }));
+}
+
+const Tarjeta = ({
+  img,
+  girada,
+  onClick,
+}: {
+  img: string;
+  girada: boolean;
+  onClick: () => void;
+}) => (
+  <div
+    onClick={onClick}
+    className="bg-white border rounded shadow cursor-pointer flex items-center justify-center h-32"
+  >
     {girada ? (
       <img src={img} alt="tarjeta" className="w-full h-full object-contain" />
     ) : (
@@ -24,20 +47,39 @@ const Tarjeta = ({img, girada, onClick,}:{img: string; girada: boolean; onClick:
 );
 
 export default function Juego() {
-  const tarjetasIniciales = GrupoTarjetas.map((t, i) => ({...t, id: i, girada: false, emparejada: false,}));
-
-  const [tarjetas, setTarjetas] = useState(tarjetasIniciales);
+  const [tarjetas, setTarjetas] = useState<any[]>([]);
   const [seleccionadas, setSeleccionadas] = useState<number[]>([]);
   const [totalClicks, setTotalClicks] = useState(0);
-  const [clicksPorTarjeta, setClicksPorTarjeta] = useState<number[]>(Array(tarjetas.length).fill(0));
+  const [clicksPorTarjeta, setClicksPorTarjeta] = useState<number[]>([]);
   const [paresEncontrados, setParesEncontrados] = useState(0);
   const [bloquearTablero, setBloquearTablero] = useState(false);
   const [tiempo, setTiempo] = useState(20);
 
   useEffect(() => {
+    const iniciarJuego = async () => {
+      const ids = obtenerIdsAleatorios(NUM_POKEMONS);
+      const pokemons = await cargarPokemons(ids);
+      const cartas = [...pokemons, ...pokemons]
+        .map((p, i) => ({ ...p, id: i, girada: false, emparejada: false }))
+        .sort(() => Math.random() - 0.5);
+
+      setTarjetas(cartas);
+      setClicksPorTarjeta(Array(cartas.length).fill(0));
+      setSeleccionadas([]);
+      setTotalClicks(0);
+      setParesEncontrados(0);
+      setTiempo(20);
+    };
+
+    iniciarJuego();
+  }, []);
+
+  useEffect(() => {
     if (tiempo === 0) return;
-    const intervalo = setInterval(() => {setTiempo((prev) => prev - 1);}, 1000);
-        return () => clearInterval(intervalo);
+    const intervalo = setInterval(() => {
+      setTiempo((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(intervalo);
   }, [tiempo]);
 
   useEffect(() => {
@@ -71,34 +113,39 @@ export default function Juego() {
     if (bloquearTablero) return;
     if (tarjetas[index].girada || tarjetas[index].emparejada) return;
     if (seleccionadas.length === 2) return;
-  
+
     const clicksTarjeta = [...clicksPorTarjeta];
     clicksTarjeta[index]++;
     setClicksPorTarjeta(clicksTarjeta);
-  
+
     const nuevas = [...tarjetas];
     nuevas[index].girada = true;
     setTarjetas(nuevas);
-  
+
     setSeleccionadas([...seleccionadas, index]);
     setTotalClicks((c) => c + 1);
   };
-  
 
   return (
     <div>
       <Header />
       <h1 className="text-2xl font-bold text-center mt-4">Juego de Memoria</h1>
       <div className="text-center mt-2">
-        Tiempo restante: <strong>{tiempo}s</strong> |  Clics: <strong>{totalClicks}</strong> | Pares encontrados: <strong>{paresEncontrados}</strong>
+        Tiempo restante: <strong>{tiempo}s</strong> | Clics:{" "}
+        <strong>{totalClicks}</strong> | Pares encontrados:{" "}
+        <strong>{paresEncontrados}</strong>
       </div>
 
       {tiempo === 0 && (
-        <p className="text-center text-red-500 font-semibold mt-4">Tiempo agotado!</p>
+        <p className="text-center text-red-500 font-semibold mt-4">
+          ¡Tiempo agotado!
+        </p>
       )}
 
-      {paresEncontrados === GrupoTarjetas.length / 2 && (
-        <p className="text-center text-green-600 font-semibold mt-4">Has ganado!</p>
+      {paresEncontrados === NUM_POKEMONS && (
+        <p className="text-center text-green-600 font-semibold mt-4">
+          ¡Has ganado!
+        </p>
       )}
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 px-4 mt-6">
@@ -109,11 +156,12 @@ export default function Juego() {
               girada={tarjeta.girada || tarjeta.emparejada}
               onClick={() => manejarClickTarjeta(index)}
             />
-          <p className="mt-1 text-sm text-gray-700">Clicks: {clicksPorTarjeta[index]}</p>
+            <p className="mt-1 text-sm text-gray-700">
+              Clicks: {clicksPorTarjeta[index]}
+            </p>
           </div>
         ))}
       </div>
-
     </div>
   );
 }
