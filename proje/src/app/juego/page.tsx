@@ -3,19 +3,19 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Header from "../components/Header";
 
-type PokemonAPIResponse = {
-  name: string;
-  sprites: {
-    front_default: string;
-  };
-};
-
 type TarjetaPokemon = {
   id: number;
   nombre: string;
   img: string;
   girada: boolean;
   emparejada: boolean;
+};
+
+type PokemonAPIResponse = {
+  name: string;
+  sprites: {
+    front_default: string;
+  };
 };
 
 function obtenerIdsAleatorios(cantidad: number): number[] {
