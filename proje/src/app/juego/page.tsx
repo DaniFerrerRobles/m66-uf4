@@ -4,6 +4,13 @@ import Image from "next/image";
 import Header from "../components/Header";
 import RegistroUsuarios from "../registre/page";
 
+type PokemonAPIResponse = {
+  name: string;
+  sprites: {
+    front_default: string;
+  };
+};
+
 type TarjetaPokemon = {
   id: number;
   nombre: string;
@@ -27,7 +34,7 @@ async function cargarPokemons(ids: number[]) {
   );
   const resultados = await Promise.all(peticiones);
 
-  return resultados.map((p: any) => ({
+  return resultados.map((p: PokemonAPIResponse) => ({
     nombre: p.name,
     img: p.sprites.front_default,
   }));
@@ -51,7 +58,7 @@ const Tarjeta = ({
         src={img}
         alt="tarjeta"
         width={100}
-        height={100} 
+        height={100}
         className="object-contain"
         sizes="(max-width: 768px) 100px, 200px"
       />
