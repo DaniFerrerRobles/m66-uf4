@@ -1,7 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Header from "../components/Header";
 import RegistroUsuarios from "../registre/page";
+
+type TarjetaPokemon = {
+  id: number;
+  nombre: string;
+  img: string;
+  girada: boolean;
+  emparejada: boolean;
+};
 
 function obtenerIdsAleatorios(cantidad: number): number[] {
   const ids: number[] = [];
@@ -18,7 +27,7 @@ async function cargarPokemons(ids: number[]) {
   );
   const resultados = await Promise.all(peticiones);
 
-  return resultados.map((p) => ({
+  return resultados.map((p: any) => ({
     nombre: p.name,
     img: p.sprites.front_default,
   }));
@@ -35,10 +44,17 @@ const Tarjeta = ({
 }) => (
   <div
     onClick={onClick}
-    className="bg-white border rounded shadow cursor-pointer flex items-center justify-center h-32"
+    className="bg-white border rounded shadow cursor-pointer flex items-center justify-center h-32 relative"
   >
     {girada ? (
-      <img src={img} alt="tarjeta" className="w-full h-full object-contain" />
+      <Image
+        src={img}
+        alt="tarjeta"
+        width={100}
+        height={100} 
+        className="object-contain"
+        sizes="(max-width: 768px) 100px, 200px"
+      />
     ) : (
       <div className="text-3xl">PRUEBA SUERTE!</div>
     )}
@@ -47,7 +63,7 @@ const Tarjeta = ({
 
 export default function Juego() {
   const cantidad = 4;
-  const [tarjetas, setTarjetas] = useState<any[]>([]);
+  const [tarjetas, setTarjetas] = useState<TarjetaPokemon[]>([]);
   const [seleccionadas, setSeleccionadas] = useState<number[]>([]);
   const [totalClicks, setTotalClicks] = useState(0);
   const [clicksPorTarjeta, setClicksPorTarjeta] = useState<number[]>([]);
@@ -59,8 +75,13 @@ export default function Juego() {
     const iniciarJuego = async () => {
       const ids = obtenerIdsAleatorios(cantidad);
       const pokemons = await cargarPokemons(ids);
-      const cartas = [...pokemons, ...pokemons]
-        .map((p, i) => ({ ...p, id: i, girada: false, emparejada: false }))
+      const cartas: TarjetaPokemon[] = [...pokemons, ...pokemons]
+        .map((p, i) => ({
+          ...p,
+          id: i,
+          girada: false,
+          emparejada: false,
+        }))
         .sort(() => Math.random() - 0.5);
 
       setTarjetas(cartas);
@@ -107,7 +128,7 @@ export default function Juego() {
         }, 1000);
       }
     }
-  }, [seleccionadas]);
+  }, [seleccionadas, tarjetas]);
 
   const manejarClickTarjeta = (index: number) => {
     if (bloquearTablero) return;
