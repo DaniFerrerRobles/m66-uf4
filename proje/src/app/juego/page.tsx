@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Header from "../components/Header";
-import RegistroUsuarios from "../registre/page";
 
 type PokemonAPIResponse = {
   name: string;
