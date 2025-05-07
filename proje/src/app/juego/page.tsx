@@ -3,15 +3,13 @@ import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import RegistroUsuarios from "../registre/page";
 
-const NUM_POKEMONS = 4; 
-
 function obtenerIdsAleatorios(cantidad: number): number[] {
-  const ids = new Set<number>();
-  while (ids.size < cantidad) {
+  const ids: number[] = [];
+  for (let i = 0; i < cantidad; i++) {
     const id = Math.floor(Math.random() * 150) + 1;
-    ids.add(id);
+    ids.push(id);
   }
-  return Array.from(ids);
+  return ids;
 }
 
 async function cargarPokemons(ids: number[]) {
@@ -26,7 +24,15 @@ async function cargarPokemons(ids: number[]) {
   }));
 }
 
-const Tarjeta = ({img, girada, onClick}:{img: string; girada: boolean;onClick: () => void;}) => (
+const Tarjeta = ({
+  img,
+  girada,
+  onClick,
+}: {
+  img: string;
+  girada: boolean;
+  onClick: () => void;
+}) => (
   <div
     onClick={onClick}
     className="bg-white border rounded shadow cursor-pointer flex items-center justify-center h-32"
@@ -40,6 +46,7 @@ const Tarjeta = ({img, girada, onClick}:{img: string; girada: boolean;onClick: (
 );
 
 export default function Juego() {
+  const cantidad = 4;
   const [tarjetas, setTarjetas] = useState<any[]>([]);
   const [seleccionadas, setSeleccionadas] = useState<number[]>([]);
   const [totalClicks, setTotalClicks] = useState(0);
@@ -50,7 +57,7 @@ export default function Juego() {
 
   useEffect(() => {
     const iniciarJuego = async () => {
-      const ids = obtenerIdsAleatorios(NUM_POKEMONS);
+      const ids = obtenerIdsAleatorios(cantidad);
       const pokemons = await cargarPokemons(ids);
       const cartas = [...pokemons, ...pokemons]
         .map((p, i) => ({ ...p, id: i, girada: false, emparejada: false }))
@@ -135,7 +142,7 @@ export default function Juego() {
         </p>
       )}
 
-      {paresEncontrados === NUM_POKEMONS && (
+      {paresEncontrados === cantidad && (
         <p className="text-center text-green-600 font-semibold mt-4">
           ¡Has ganado!
         </p>
