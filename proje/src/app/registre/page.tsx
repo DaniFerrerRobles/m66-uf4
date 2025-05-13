@@ -22,7 +22,7 @@ const RegistroUsuarios = () => {
       return;
     }
 
-    usuariosRegistro.push(nombre, contraseña);
+    usuariosRegistro.push({nombre, contraseña});
     localStorage.setItem('usuarios', JSON.stringify(usuariosRegistro));
 
     setMensaje('Registrado!');

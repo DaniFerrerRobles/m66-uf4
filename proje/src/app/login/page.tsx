@@ -22,6 +22,8 @@ const LoginUsuarios = () => {
     console.log(usuariosLogin);
 
     if (usuarioExistenteLogin) {
+      localStorage.setItem('usuarioActivo', JSON.stringify(usuarioExistenteLogin));
+
       setMensaje('Usuario iniciado correctamente!');
     } else {
       setMensaje('Nombre de usuario o contraseña incorrectos.');
