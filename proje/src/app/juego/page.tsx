@@ -1,44 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import Image from "next/image";
 import Header from "../components/Header";
-
-type TarjetaPokemon = {
-  id: number;
-  nombre: string;
-  img: string;
-  girada: boolean;
-  emparejada: boolean;
-};
-
-type PokemonAPIResponse = {
-  name: string;
-  sprites: {
-    front_default: string;
-  };
-};
-
-function obtenerIdsAleatorios(cantidad: number): number[] {
-  const ids: number[] = [];
-  for (let i = 0; i < cantidad; i++) {
-    const id = Math.floor(Math.random() * 150) + 1;
-    ids.push(id);
-  }
-  return ids;
-}
-
-async function cargarPokemons(ids: number[]) {
-  const peticiones = ids.map((id) =>
-    fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then((res) => res.json())
-  );
-  const resultados = await Promise.all(peticiones);
-
-  return resultados.map((p: PokemonAPIResponse) => ({
-    nombre: p.name,
-    img: p.sprites.front_default,
-  }));
-}
-
+import { JuegoContext } from "./JuegoContext";
 const Tarjeta = ({
   img,
   girada,
@@ -68,90 +32,20 @@ const Tarjeta = ({
 );
 
 export default function Juego() {
+  const contexto = useContext(JuegoContext);
+
+  if (!contexto) return <p>no encontrado.</p>;
+
+  const {
+    tarjetas,
+    tiempo,
+    totalClicks,
+    paresEncontrados,
+    clicksPorTarjeta,
+    manejarClickTarjeta,
+  } = contexto;
+
   const cantidad = 4;
-  const [tarjetas, setTarjetas] = useState<TarjetaPokemon[]>([]);
-  const [seleccionadas, setSeleccionadas] = useState<number[]>([]);
-  const [totalClicks, setTotalClicks] = useState(0);
-  const [clicksPorTarjeta, setClicksPorTarjeta] = useState<number[]>([]);
-  const [paresEncontrados, setParesEncontrados] = useState(0);
-  const [bloquearTablero, setBloquearTablero] = useState(false);
-  const [tiempo, setTiempo] = useState(20);
-
-  useEffect(() => {
-    const iniciarJuego = async () => {
-      const ids = obtenerIdsAleatorios(cantidad);
-      const pokemons = await cargarPokemons(ids);
-      const cartas: TarjetaPokemon[] = [...pokemons, ...pokemons]
-        .map((p, i) => ({
-          ...p,
-          id: i,
-          girada: false,
-          emparejada: false,
-        }))
-        .sort(() => Math.random() - 0.5);
-
-      setTarjetas(cartas);
-      setClicksPorTarjeta(Array(cartas.length).fill(0));
-      setSeleccionadas([]);
-      setTotalClicks(0);
-      setParesEncontrados(0);
-      setTiempo(20);
-    };
-
-    iniciarJuego();
-  }, []);
-
-  useEffect(() => {
-    if (tiempo === 0) return;
-    const intervalo = setInterval(() => {
-      setTiempo((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(intervalo);
-  }, [tiempo]);
-
-  useEffect(() => {
-    if (seleccionadas.length === 2) {
-      const [i1, i2] = seleccionadas;
-      const nuevaLista = [...tarjetas];
-      setBloquearTablero(true);
-
-      if (nuevaLista[i1].nombre === nuevaLista[i2].nombre) {
-        nuevaLista[i1].emparejada = true;
-        nuevaLista[i2].emparejada = true;
-        setParesEncontrados((p) => p + 1);
-        setTimeout(() => {
-          setSeleccionadas([]);
-          setTarjetas(nuevaLista);
-          setBloquearTablero(false);
-        }, 500);
-      } else {
-        setTimeout(() => {
-          nuevaLista[i1].girada = false;
-          nuevaLista[i2].girada = false;
-          setSeleccionadas([]);
-          setTarjetas(nuevaLista);
-          setBloquearTablero(false);
-        }, 1000);
-      }
-    }
-  }, [seleccionadas, tarjetas]);
-
-  const manejarClickTarjeta = (index: number) => {
-    if (bloquearTablero) return;
-    if (tarjetas[index].girada || tarjetas[index].emparejada) return;
-    if (seleccionadas.length === 2) return;
-
-    const clicksTarjeta = [...clicksPorTarjeta];
-    clicksTarjeta[index]++;
-    setClicksPorTarjeta(clicksTarjeta);
-
-    const nuevas = [...tarjetas];
-    nuevas[index].girada = true;
-    setTarjetas(nuevas);
-
-    setSeleccionadas([...seleccionadas, index]);
-    setTotalClicks((c) => c + 1);
-  };
 
   return (
     <div>
