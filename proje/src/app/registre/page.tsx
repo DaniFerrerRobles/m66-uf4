@@ -1,33 +1,28 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useAuth } from "./AuthContext";
 
 const RegistroUsuarios = () => {
-  const [nombre, setNombre] = useState('');
-  const [contraseña, setContraseña] = useState('');
-  const [mensaje, setMensaje] = useState('');
+  const { registrarUsuario } = useAuth();
+  const [nombre, setNombre] = useState("");
+  const [contraseña, setContraseña] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
-  const manejarRegistro = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const manejarRegistro = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
     if (!nombre || !contraseña) {
-      setMensaje('Todos los campos son obligatorios.');
+      setMensaje("Todos los campos son obligatorios.");
       return;
     }
 
-    const usuariosRegistro = JSON.parse(localStorage.getItem('usuarios') || '[]');
-    const usuarioExistenteRegistro = usuariosRegistro.find((usuario: { nombre: string }) => usuario.nombre === nombre);
+    const resultado = registrarUsuario({ nombre, contraseña });
+    setMensaje(resultado);
 
-    if (usuarioExistenteRegistro) {
-      setMensaje('El nombre de usuario ya está registrado.');
-      return;
+    if (resultado === "Registrado!") {
+      setNombre("");
+      setContraseña("");
     }
-
-    usuariosRegistro.push({nombre, contraseña});
-    localStorage.setItem('usuarios', JSON.stringify(usuariosRegistro));
-
-    setMensaje('Registrado!');
-    setNombre('');
-    setContraseña('');
   };
 
   return (
@@ -38,35 +33,29 @@ const RegistroUsuarios = () => {
           <label className="block text-gray-600 font-medium mb-1">Usuario:</label>
           <input
             type="text"
-            placeholder="Introduce tu nombre de usuario"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 border rounded-xl"
           />
         </div>
         <div>
           <label className="block text-gray-600 font-medium mb-1">Contraseña:</label>
           <input
             type="password"
-            placeholder="Introduce tu contraseña"
             value={contraseña}
             onChange={(e) => setContraseña(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 border rounded-xl"
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-300"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl"
         >
           Registrar
         </button>
       </form>
 
-      {mensaje && (
-        <p className="mt-4 text-green-600 text-center font-medium">{mensaje}</p>
-      )}
+      {mensaje && <p className="mt-4 text-center text-green-600">{mensaje}</p>}
     </div>
   );
 };

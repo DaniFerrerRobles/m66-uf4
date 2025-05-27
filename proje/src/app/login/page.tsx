@@ -1,33 +1,23 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { useAuth } from "../registre/AuthContext";
 
 const LoginUsuarios = () => {
-  const [nombre, setNombre] = useState('');
-  const [contraseña, setContraseña] = useState('');
-  const [mensaje, setMensaje] = useState('');
+  const { iniciarSesion } = useAuth();
+  const [nombre, setNombre] = useState("");
+  const [contraseña, setContraseña] = useState("");
+  const [mensaje, setMensaje] = useState("");
 
   const manejarLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!nombre || !contraseña) {
-      setMensaje('CAMPOS INCOMPLETOS');
+      setMensaje("CAMPOS INCOMPLETOS");
       return;
     }
 
-    const usuariosLogin = JSON.parse(localStorage.getItem('usuarios') || '[]');
-    const usuarioExistenteLogin = usuariosLogin.find(
-      (usuario: { nombre: string; contraseña: string }) =>
-        usuario.nombre === nombre && usuario.contraseña === contraseña
-    );
-    console.log(usuariosLogin);
-
-    if (usuarioExistenteLogin) {
-      localStorage.setItem('usuarioActivo', JSON.stringify(usuarioExistenteLogin));
-
-      setMensaje('Usuario iniciado correctamente!');
-    } else {
-      setMensaje('Nombre de usuario o contraseña incorrectos.');
-    }
+    const resultado = iniciarSesion(nombre, contraseña);
+    setMensaje(resultado);
   };
 
   return (
@@ -38,35 +28,29 @@ const LoginUsuarios = () => {
           <label className="block text-gray-600 font-medium mb-1">Usuario:</label>
           <input
             type="text"
-            placeholder="Introduce tu nombre de usuario"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl"
           />
         </div>
         <div>
           <label className="block text-gray-600 font-medium mb-1">Contraseña:</label>
           <input
             type="password"
-            placeholder="Introduce tu contraseña"
             value={contraseña}
             onChange={(e) => setContraseña(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-4 py-2 border border-gray-300 rounded-xl"
           />
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl transition duration-300"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-xl"
         >
           Iniciar Sesión
         </button>
       </form>
 
-      {mensaje && (
-        <p className="mt-4 text-green-600 text-center font-medium">{mensaje}</p>
-      )}
+      {mensaje && <p className="mt-4 text-center text-green-600">{mensaje}</p>}
     </div>
   );
 };
