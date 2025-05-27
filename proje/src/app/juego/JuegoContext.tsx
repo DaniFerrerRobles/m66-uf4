@@ -31,7 +31,7 @@ const cargarPokemons = async (ids: number[]) => {
     ids.map((id) => fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then((res) => res.json()))
   );
 
-  return resultados.map((p: any) => ({
+  return resultados.map((p) => ({
     nombre: p.name,
     img: p.sprites.front_default,
   }));
